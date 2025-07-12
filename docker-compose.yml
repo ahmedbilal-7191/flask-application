@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - appnet
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - appnet
+
+volumes:
+  pg-data:
+
+networks:
+  appnet:
+    driver: bridge
