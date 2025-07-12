@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    image: bilal7191/flask-application
     ports:
       - "5000:5000"
     depends_on:
