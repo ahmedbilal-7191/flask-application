@@ -1,0 +1,72 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+
+# === Virtual Environments ===
+venv/
+.venv/
+ENV/
+env/
+
+# === Environment Variables ===
+.env
+*.env
+
+# === Flask Instance and DB ===
+instance/
+*.sqlite3
+*.db
+
+# === Logs ===
+*.log
+
+# === Pytest / Coverage ===
+.cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# === Docker ===
+*.pid
+docker-compose.override.yml
+docker-compose*.local.yml
+**/docker-volume/
+**/.docker/
+*.bak
+*.swp
+
+# Ignore local bind mounts (if any)
+data/
+tmp/
+*.sock
+
+# === Docker build files ===
+*.tar
+*.img
+*.container
+Dockerfile.*
+.dockerignore
+
+# === IDEs and Editors ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === pip cache ===
+pip-wheel-metadata/
+__pypackages__/
+
+# === Build Artifacts ===
+build/
+dist/
+*.egg-info/
+
+
+
