@@ -1,27 +1,14 @@
-from flask import Flask, request, jsonify
-import psycopg2
+from flask import Blueprint, request, jsonify, render_template
+from .db import get_connection
 from psycopg2 import extras
-from config import DB_CONFIG
 
-app = Flask(__name__)
+messages_bp = Blueprint('messages', __name__)
 
-def get_connection():
-    return psycopg2.connect(**DB_CONFIG)
+@messages_bp.route('/')
+def index():
+    return render_template('index.html')
 
-def create_table():
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS messages (
-            id SERIAL PRIMARY KEY,
-            content TEXT NOT NULL
-        );
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
-
-@app.route('/messages', methods=['GET'])
+@messages_bp.route('/messages', methods=['GET'])
 def get_messages():
     try:
         conn = get_connection()
@@ -35,7 +22,7 @@ def get_messages():
     except Exception as e:
         return str(e), 500
 
-@app.route('/messages', methods=['POST'])
+@messages_bp.route('/messages', methods=['POST'])
 def create_message():
     data = request.get_json()
     content = data.get('message', '').strip()
@@ -54,7 +41,7 @@ def create_message():
     except Exception as e:
         return str(e), 500
 
-@app.route('/messages/<int:msg_id>', methods=['PUT'])
+@messages_bp.route('/messages/<int:msg_id>', methods=['PUT'])
 def update_message(msg_id):
     data = request.get_json()
     new_content = data.get('message', '').strip()
@@ -77,7 +64,7 @@ def update_message(msg_id):
     except Exception as e:
         return str(e), 500
 
-@app.route('/messages/<int:msg_id>', methods=['DELETE'])
+@messages_bp.route('/messages/<int:msg_id>', methods=['DELETE'])
 def delete_message(msg_id):
     try:
         conn = get_connection()
@@ -94,7 +81,3 @@ def delete_message(msg_id):
             return jsonify({'error': 'Message not found'}), 404
     except Exception as e:
         return str(e), 500
-
-if __name__ == '__main__':
-    create_table()
-    app.run(host='0.0.0.0', port=5000, debug=True)
