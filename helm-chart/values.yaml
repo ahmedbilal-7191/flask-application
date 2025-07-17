@@ -1,0 +1,16 @@
+flaskApp:
+  image: bilal7191/flask-application
+  replicaCount: 1
+  containerPort: 5000
+  service:
+    type: NodePort
+    port: 5000
+
+postgres:
+  image: postgres:latest
+  replicaCount: 1
+  containerPort: 5432
+  storage:
+    size: 500Mi
+    accessMode: ReadWriteOnce
+    path: /mnt/data/pg-0  # only for hostPath (kind)

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-svc
+spec:
+  type: {{ .Values.flaskApp.service.type }}
+  selector:
+    app: flask-app
+  ports:
+    - port: 80
+      targetPort: {{ .Values.flaskApp.service.port }}
+      nodePort: 30007  

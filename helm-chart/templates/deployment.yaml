@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-deployment
+spec:
+  replicas: {{ .Values.flaskApp.replicaCount }}
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+        - name: web
+          image: {{ .Values.flaskApp.image }}
+          ports:
+            - containerPort: {{ .Values.flaskApp.containerPort }}
+          envFrom:
+            - configMapRef:
+                name: flask-app-config
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+      restartPolicy: Always

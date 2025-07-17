@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pg-pv-0
+spec:
+  capacity:
+    storage: {{ .Values.postgres.storage.size }}
+  accessModes:
+    - {{ .Values.postgres.storage.accessMode }}
+  hostPath:
+    path: {{ .Values.postgres.storage.path }}       # Inside the kind container, not host
+  persistentVolumeReclaimPolicy: Retain
