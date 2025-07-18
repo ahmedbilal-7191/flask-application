@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: flask-app-deployment
 spec:
-  replicas: {{ .Values.flaskApp.replicaCount }}
+  replicas: { { .Values.flaskApp.replicaCount } }
   selector:
     matchLabels:
       app: flask-app
@@ -14,9 +14,10 @@ spec:
     spec:
       containers:
         - name: web
-          image: {{ .Values.flaskApp.image }}
+          image: { { .Values.flaskApp.image } }
+          imagePullPolicy: Always
           ports:
-            - containerPort: {{ .Values.flaskApp.containerPort }}
+            - containerPort: { { .Values.flaskApp.containerPort } }
           envFrom:
             - configMapRef:
                 name: flask-app-config
@@ -26,4 +27,17 @@ spec:
                 secretKeyRef:
                   name: db-secret
                   key: POSTGRES_PASSWORD
-      restartPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: { { .Values.flaskApp.containerPort } }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: { { .Values.flaskApp.containerPort } }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3

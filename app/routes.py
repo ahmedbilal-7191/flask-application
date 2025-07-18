@@ -3,6 +3,24 @@ from .db import get_connection
 from psycopg2 import extras
 
 messages_bp = Blueprint('messages', __name__)
+@messages_bp.route('/healthz', methods=['GET'])
+def health_check():
+    # Basic liveness check – confirms Flask is running
+    return 'OK', 200
+
+@messages_bp.route('/readyz', methods=['GET'])
+def readiness_check():
+    # Checks DB connection for readiness
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT 1;')
+        cur.fetchone()
+        cur.close()
+        conn.close()
+        return 'READY', 200
+    except Exception:
+        return 'NOT READY', 503
 
 @messages_bp.route('/')
 def index():
