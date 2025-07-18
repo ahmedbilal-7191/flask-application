@@ -26,7 +26,7 @@ pipeline {
     
     stage('Quality Gate') {
       steps {
-        timeout(time: 4, unit: 'MINUTES') {
+        timeout(time: 3, unit: 'MINUTES') {
           // This waits for the quality gate result
           waitForQualityGate abortPipeline: true
         }
@@ -64,17 +64,27 @@ pipeline {
       }
     }
 
-    stage('Inject .env') {
-      steps {
-        withCredentials([file(credentialsId: 'docker-env-file', variable: 'MY_ENV')]) {
-          sh 'cp "$MY_ENV" "${WORKSPACE}/${ENV_FILE_PATH}"'
-        }
-      }
-    }
+    // stage('Inject .env') {
+    //   steps {
+    //     withCredentials([file(credentialsId: 'docker-env-file', variable: 'MY_ENV')]) {
+    //       sh 'cp "$MY_ENV" "${WORKSPACE}/${ENV_FILE_PATH}"'
+    //     }
+    //   }
+    // }
 
-    stage('Deploy') {
+    // stage('Deploy') {
+    //   steps {
+    //     sh 'docker-compose up -d'
+    //   }
+    // }
+    stage('Helm Deploy') {
       steps {
-        sh 'docker-compose up -d'
+        withCredentials([file(credentialsId: 'kubeconfig-id', variable: 'KUBECONFIG')]) {
+          sh '''
+            helm version
+            helm upgrade --install flask-deployment-v1 ./helm-chart 
+            '''
+        }
       }
     }
   }
