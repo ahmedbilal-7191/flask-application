@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('messageForm');
   const input = document.getElementById('messageInput');
-  const list = document.getElementById('messageList');
+  const grid = document.getElementById('messageGrid');
 
   const modal = document.getElementById('editModal');
   const editInput = document.getElementById('editInput');
@@ -13,21 +13,32 @@ document.addEventListener('DOMContentLoaded', () => {
   async function fetchMessages() {
     const res = await fetch('/messages');
     const messages = await res.json();
-    list.innerHTML = '';
+    grid.innerHTML = '';
+
     messages.forEach(msg => {
-      const li = document.createElement('li');
-      li.innerHTML = `<strong>#${msg.id}</strong>: ${msg.message}
-        <span class="message-actions">
-          <button onclick="editMessage(${msg.id}, '${msg.message.replace(/'/g, "\\'")}')">Edit</button>
-          <button onclick="deleteMessage(${msg.id})">Delete</button>
-        </span>`;
-      list.appendChild(li);
+      const card = document.createElement('div');
+      card.className = 'col-md-6 col-lg-4 animate__animated animate__fadeInUp';
+
+      card.innerHTML = `
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title">#${msg.id}</h5>
+            <p class="card-text flex-grow-1">${msg.message}</p>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+              <button class="btn btn-sm btn-outline-primary" onclick="editMessage(${msg.id}, '${msg.message.replace(/'/g, "\\'")}')">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteMessage(${msg.id})">Delete</button>
+            </div>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
     });
   }
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const message = input.value;
+    const message = input.value.trim();
+    if (!message) return;
     await fetch('/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -51,7 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   saveEdit.addEventListener('click', async () => {
-    const newMsg = editInput.value;
+    const newMsg = editInput.value.trim();
+    if (!newMsg) return;
     await fetch(`/messages/${editId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

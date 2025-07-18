@@ -5,5 +5,5 @@ metadata:
 data:
   POSTGRES_DB: flaskdb
   POSTGRES_USER: flaskuser
-  POSTGRES_HOST: postgres-service
+  POSTGRES_HOST: postgres-svc
   POSTGRES_PORT: "5432"
