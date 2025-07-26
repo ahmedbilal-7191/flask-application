@@ -5,7 +5,6 @@ flaskApp:
   service:
     type: NodePort
     port: 5000
-
 postgres:
   image: postgres:latest
   replicaCount: 1
@@ -13,4 +12,4 @@ postgres:
   storage:
     size: 500Mi
     accessMode: ReadWriteOnce
-    path: /mnt/data/pg-0  # only for hostPath (kind)
+    path: /mnt/data/pg-0 # only for hostPath (kind)
