@@ -1,3 +1,5 @@
+.scannerwork
+zap-reports
 # === Python ===
 __pycache__/
 *.py[cod]
