@@ -9,6 +9,7 @@ postgres:
   image: postgres:latest
   replicaCount: 1
   containerPort: 5432
+  password: "__POSTGRES_PASSWORD__"
   storage:
     size: 500Mi
     accessMode: ReadWriteOnce
