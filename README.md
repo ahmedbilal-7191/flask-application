@@ -104,9 +104,6 @@ Below is a screenshot of the ArgoCD dashboard showing the deployed resources and
 
 docker-compose up --build
 🧪 Running Flask App Manually
-bash
-Copy
-Edit
 export FLASK_APP=run.py
 python run.py
 ⚙️ App Entry Point (run.py)
