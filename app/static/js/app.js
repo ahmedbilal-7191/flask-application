@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  form.addEventListener('submit', async e => {
+  async function handleFormSubmit(e) {
     e.preventDefault();
     const message = input.value.trim();
     if (!message) return;
@@ -46,7 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     input.value = '';
     fetchMessages();
-  });
+  }
+
+  form.addEventListener('submit', handleFormSubmit);
 
   window.deleteMessage = async (id) => {
     if (confirm('Are you sure you want to delete this message?')) {
@@ -61,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.style.display = 'block';
   };
 
-  saveEdit.addEventListener('click', async () => {
+  async function handleSaveEditClick() {
     const newMsg = editInput.value.trim();
     if (!newMsg) return;
     await fetch(`/messages/${editId}`, {
@@ -71,10 +73,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     modal.style.display = 'none';
     fetchMessages();
-  });
+  }
+
+  saveEdit.addEventListener('click', handleSaveEditClick);
 
   closeModal.onclick = () => modal.style.display = 'none';
-  window.onclick = e => { if (e.target == modal) modal.style.display = 'none'; };
+
+  window.onclick = e => {
+    if (e.target == modal) modal.style.display = 'none';
+  };
 
   fetchMessages();
 });
