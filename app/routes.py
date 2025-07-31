@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template
-from .db import get_connection
+from .db import get_connection,release_connection
 from psycopg2 import extras
 
 messages_bp = Blueprint('messages', __name__)
@@ -17,10 +17,14 @@ def readiness_check():
         cur.execute('SELECT 1;')
         cur.fetchone()
         cur.close()
-        conn.close()
+        # conn.close()
         return 'READY', 200
     except Exception:
         return 'NOT READY', 503
+    finally:
+        # Make sure to release the DB connection back to the pool
+        if 'conn' in locals():
+            release_connection(conn)
 
 @messages_bp.route('/')
 def index():
@@ -35,10 +39,13 @@ def get_messages():
         rows = cur.fetchall()
         messages = [{'id': row['id'], 'message': row['content']} for row in rows]
         cur.close()
-        conn.close()
+        # conn.close()
         return jsonify(messages)
     except Exception as e:
         return str(e), 500
+    finally:
+        if 'conn' in locals():
+            release_connection(conn)
 
 @messages_bp.route('/messages', methods=['POST'])
 def create_message():
@@ -54,10 +61,13 @@ def create_message():
         new_id = cur.fetchone()[0]
         conn.commit()
         cur.close()
-        conn.close()
+        # conn.close()
         return jsonify({'id': new_id, 'message': content}), 201
     except Exception as e:
         return str(e), 500
+    finally:
+        if 'conn' in locals():
+            release_connection(conn)
 
 @messages_bp.route('/messages/<int:msg_id>', methods=['PUT'])
 def update_message(msg_id):
@@ -73,7 +83,7 @@ def update_message(msg_id):
         updated = cur.fetchone()
         conn.commit()
         cur.close()
-        conn.close()
+        # conn.close()
 
         if updated:
             return jsonify({'id': msg_id, 'message': new_content}), 200
@@ -81,6 +91,10 @@ def update_message(msg_id):
             return jsonify({'error': 'Message not found'}), 404
     except Exception as e:
         return str(e), 500
+    finally:
+        if 'conn' in locals():
+            release_connection(conn)
+    
 
 @messages_bp.route('/messages/<int:msg_id>', methods=['DELETE'])
 def delete_message(msg_id):
@@ -91,7 +105,7 @@ def delete_message(msg_id):
         deleted = cur.fetchone()
         conn.commit()
         cur.close()
-        conn.close()
+        # conn.close()
 
         if deleted:
             return jsonify({'message': f'Message {msg_id} deleted.'}), 200
@@ -99,3 +113,6 @@ def delete_message(msg_id):
             return jsonify({'error': 'Message not found'}), 404
     except Exception as e:
         return str(e), 500
+    finally:
+        if 'conn' in locals():
+            release_connection(conn)

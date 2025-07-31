@@ -15,7 +15,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "run.py"]
+CMD ["gunicorn", "-w", "4", "-k", "gthread", "-b", "0.0.0.0:5000", "run:app"]
+# CMD ["python", "run.py"]
 
 
 # FROM python:3.11
