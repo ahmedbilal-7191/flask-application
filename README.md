@@ -7,39 +7,32 @@ A full-stack **Flask-based Message Board App** (like a to-do list) with a Postgr
 ## 🏗️ Project Structure
 <pre> 
 project-root/
-│
-├── app/ # Flask application
-│ ├── static/ # CSS & JS files
-│ │ ├── css/style.css
-│ │ └── js/app.js
-│ ├── templates/index.html # Jinja2 Template
-│ ├── init.py # App Factory
-│ ├── routes.py # Flask Routes
-│ └── db.py # DB Models / Connection
-│
-├── config.py # Flask Configuration
-├── run.py # Entry point
-│
-├── helm-chart/ # Helm deployment chart
-│ ├── Chart.yaml
-│ ├── values.yaml
-│ └── templates/
-│ ├── deployment.yaml
-│ ├── flask-config.yaml
-│ ├── flask-svc.yaml
-│ ├── postgres-pv.yaml
-│ ├── postgres-statefulset.yaml
-│ └── postgres-svc.yaml
-│
-├── argocd/
-│ └── application.yaml # ArgoCD GitOps Manifest
-│
-├── .env.example # Environment variable example
-├── .gitignore
-├── Dockerfile # Flask App Image
-├── docker-compose.yml # Dev-only local setup
-├── Jenkinsfile # CI/CD Pipeline
-├── README.md
+├── app/
+│   ├── static/
+│   │   ├── css/style.css
+│   │   └── js/app.js
+│   ├── templates/index.html
+│   ├── __init__.py
+│   ├── routes.py
+│   └── db.py
+├── config.py
+├── run.py
+├── helm-chart/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+│       ├── deployment.yaml
+│       ├── flask-config.yaml
+│       ├── flask-svc.yaml
+│       ├── postgres-pv.yaml
+│       ├── postgres-statefulset.yaml
+│       └── postgres-svc.yaml
+├── argocd/application.yaml
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── Jenkinsfile
+└── README.md
 
  </pre>
 ---
@@ -98,37 +91,61 @@ Below is a screenshot of the ArgoCD dashboard showing the deployed resources and
 
 ## 🐳 Local Development
 
-1. Clone the repo and rename `.env.example` to `.env` with correct DB credentials.
-2. Run locally with:
+**1. Clone the repository**
+  <pre><code>git clone https://github.com/your-username/message-board-app.git
+cd message-board-app</code></pre>
+**2. Rename the environment file**
+  <pre><code>cp .env.example .env</code></pre>
+**🔧 Run Without Docker**
 
+> **Prerequisites:**
+> +  Python 3.11
+> +  PostgreSQL
+> +  Virtualenv (optional)
+> +  libpq-dev, gcc, and Python dev headers (on Linux)
 
-docker-compose up --build
-🧪 Running Flask App Manually
-export FLASK_APP=run.py
-python run.py
-⚙️ App Entry Point (run.py)
+**3.Install dependencies**
+<pre><code>pip install -r requirements.txt</code></pre>
 
-from app import create_app
+**4.Run the app manually**
+<pre><code>gunicorn -w 4 -k gthread -b 0.0.0.0:5000 run:app</code></pre>
 
-app = create_app()
+**5.🐋 Run with Docker**
+<pre><code>docker build -t message-board-app:latest .
+docker run -p 5000:5000 --env-file .env message-board-app:latest</code></pre>
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
-📦 Docker Build (CI/CD)
+**🐋 Run with Docker Compose (Recommended for local dev)**
+<pre><code>docker-compose up --build</code></pre>
 
-docker build -t message-board-app:latest .
-📦 Helm Deployment (Used by ArgoCD)
+**☸️ Run with Helm (Kubernetes)**
+>This assumes you have a Kubernetes cluster running and Helm installed.
 
-helm install message-board ./helm-chart -f helm-chart/values.yaml
-🔐 Security Scanning
+**🛑 Important: Create the DB secret manually**
+
+Create a file db-secret.yaml with your database password:
+
+<pre><code>apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  namespace: message-board
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: your_db_password_here</code></pre>
+
+Apply the secret:
+<pre><code>kubectl create namespace message-board
+kubectl apply -f db-secret.yaml</code></pre>
+
+**🚀 Install the app with Helm**
+<pre><code>helm install message-board ./helm-chart -n message-board -f helm-chart/values.yaml</code></pre>
+
+**🔐 Security Scanning**
 Snyk: Scans requirements.txt
-
 SonarQube: Scans source code quality
-
 OWASP ZAP: Scans live app for web vulnerabilities
 
-🧠 Tech Stack
-Layer	Tech
+**🧠 Tech Stack**
 Backend	Flask (Python)
 Frontend	Jinja2, HTML/CSS/JS
 Database	PostgreSQL
@@ -138,12 +155,7 @@ Deployment	ArgoCD (GitOps)
 CI/CD	Jenkins
 Security	Snyk, SonarQube, ZAP
 
-📄 License
-MIT License
-
 🙌 Credits
 Created by Mohd Bilal Ahmed — Contributions welcome!
-
-
 
 ---
