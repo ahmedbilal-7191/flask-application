@@ -89,6 +89,158 @@ Below is a screenshot of the ArgoCD dashboard showing the deployed resources and
 
 > This helps visualize how the application is deployed and managed on Kubernetes using GitOps principles.
 
+
+
+
+## 🛠️ Initial Setup & Environment Installation
+
+Follow these steps to set up the full CI/CD + Kubernetes environment from scratch.
+
+## 1️⃣ Setup Jenkins Master & Agent
+
+### On both Master & Agent (Ubuntu/Debian):
+```bash
+sudo apt update
+sudo apt install openjdk-17-jdk -y
+```
+
+### Install Jenkins (Master only):
+```bash
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+sudo sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+sudo apt update
+sudo apt install jenkins -y
+```
+
+### SSH Setup between Master and Agent (No dedicated Jenkins user):
+
+On ```Master```:
+```bash
+ssh-keygen -t rsa -b 4096
+ssh-copy-id ubuntu@<agent-public-ip>
+```
+
+### Add Node in Jenkins (Master UI):
+
+- Go to Manage Jenkins → Nodes and Clouds → New Node
+
+- Remote root directory: /home/ubuntu
+
+- Select Launch agent via SSH, provide host details and credentials.
+
+## 2️⃣ Install Docker
+
+### On both Master & Agent:
+```bash
+sudo apt update && sudo apt install docker.io -y
+sudo usermod -aG docker $USER
+newgrp docker
+```
+## 3️⃣ Install SonarQube Server (Web)
+```
+# Install unzip & curl if missing
+sudo apt install -y unzip curl
+
+SONAR_VERSION=10.8.0.0
+curl -LO "https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-${SONAR_VERSION}.zip"
+
+# Extract and move to /opt
+unzip "sonarqube-${SONAR_VERSION}.zip"
+sudo mv "sonarqube-${SONAR_VERSION}" /opt/sonarqube
+
+#Make sure port 9000 is open in your EC2 Security Group
+nano conf/sonar.properties
+#Change:
+#sonar.web.host=0.0.0.0
+#sonar.web.port=9000
+
+./bin/linux-x86-64/sonar.sh start
+```
+
+## Configure in Jenkins:
+
+- Go to Manage Jenkins → System Configuration
+
+- Add SonarQube server URL & authentication token.
+
+- Under Global Tool Configuration, add SonarQube Scanner and select Install automatically.
+
+## Set Quality Gate Webhook:
+
+- Create webhook in SonarQube pointing to Jenkins Master (use ngrok to expose Jenkins to the internet).
+  ```bash
+  ngrok http 8080
+  ```
+
+## 4️⃣ Install & Configure Snyk
+```bash
+sudo apt-get install -y libpq-dev python3-dev build-essential python3-venv
+npm install -g snyk
+snyk auth <YOUR_SNYK_TOKEN>
+```
+
+- Store the Snyk token in Jenkins credentials for pipeline usage.
+
+## 5️⃣ Install yq
+```bash
+sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+sudo chmod +x /usr/local/bin/yq
+yq --version
+```
+
+## 6️⃣ Install Kind (Kubernetes-in-Docker)
+```bash
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+```
+
+### Cluster Config (```kind-config.yaml```):
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+```
+
+### Create Cluster:
+```bash
+kind create cluster --config kind-config.yaml
+kind get clusters
+```
+
+## 7️⃣ Install kubectl
+```bash
+curl -LO "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+```
+
+## 8️⃣ Install ArgoCD
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl get pods -n argocd
+```
+
+## 9️⃣ Install Helm
+```bash
+curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+sudo apt-get install apt-transport-https --yes
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+```
+
+This set up the whole pipeline + infra from scratch, including Jenkins Master-Agent, Docker, SonarQube, Snyk, Kind, kubectl, ArgoCD, Helm, and yq.
+
+
+
+
+
+
 ## 🐳 Local Development
 
 **1. Clone the repository**
