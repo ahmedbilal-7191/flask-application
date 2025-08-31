@@ -2,6 +2,7 @@
 
 A full-stack **Flask-based Message Board App** (like a to-do list) with a PostgreSQL backend and Jinja2-powered frontend. The app is containerized with Docker, deployed to Kubernetes using Helm and ArgoCD, and integrated with a CI/CD pipeline that includes security and quality scans (Snyk, SonarQube, OWASP ZAP DAST).
 
+### Youtube Link: https://youtu.be/325NjEhcUBg
 ---
 
 ## 🏗️ Project Structure
@@ -39,16 +40,16 @@ project-root/
 
 ## 💡 Features
 
-- ✅ Flask app with routes and templates
-- ✅ PostgreSQL as persistent DB
-- ✅ Responsive UI using Jinja2 and CSS
-- ✅ Dockerized backend
-- ✅ Helm for Kubernetes deployment
-- ✅ ArgoCD for GitOps-based deployment
-- ✅ Jenkins for CI/CD orchestration
-- ✅ Snyk for dependency vulnerability scanning
-- ✅ SonarQube for static code analysis
-- ✅ OWASP ZAP for DAST on the deployed app
+- Flask app with routes and templates
+- PostgreSQL as persistent DB
+- Responsive UI using Jinja2 and CSS
+- Dockerized backend
+- Helm for Kubernetes deployment
+- ArgoCD for GitOps-based deployment
+- Jenkins for CI/CD orchestration
+- Snyk for dependency vulnerability scanning
+- SonarQube for static code analysis
+- OWASP ZAP for DAST on the deployed app
 
 ---
 
